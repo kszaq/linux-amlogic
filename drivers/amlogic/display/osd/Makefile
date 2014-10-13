@@ -3,7 +3,7 @@
 #
 
 
-obj-$(CONFIG_FB_AM) += fb.o 
+obj-$(CONFIG_FB_AM) += fb.o
 
 fb-objs =  osd_hw.o osd_main.o osd_dev.o  osd_antiflicker.o osd_clone.o
 
@@ -13,8 +13,12 @@ endif
 
 obj-$(CONFIG_VSYNC_RDMA) += osd_rdma.o
 
-EXTRA_CFLAGS += -Iinclude/linux/osd/ -Idrivers/staging/android/
+EXTRA_CFLAGS += -Iinclude/linux/amlogic/osd/ -Idrivers/staging/android/
 
+ifeq ($(CONFIG_FB_AMLOGIC_UMP),y)
+fb-objs += osd_ump.o
+endif
 
-
-
+ifeq ($(CONFIG_FB_AMLOGIC_UMP),y)
+EXTRA_CFLAGS += -Idrivers/amlogic/gpu/ump/include/
+endif
