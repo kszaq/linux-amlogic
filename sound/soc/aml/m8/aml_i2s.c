@@ -320,6 +320,15 @@ static int aml_i2s_hw_free(struct snd_pcm_substream *substream)
     return 0;
 }
 
+static char *get_hw_buf_ptr(struct snd_pcm_runtime *runtime, snd_pcm_uframes_t cur_pos, int align)
+{
+	unsigned int tot_bytes_per_channel = frames_to_bytes(runtime, cur_pos) / runtime->channels;
+	unsigned int bytes_aligned_per_channel = frames_to_bytes(runtime, align / runtime->channels);
+	unsigned int hw_base_off = tot_bytes_per_channel / bytes_aligned_per_channel;
+	unsigned int block_off = tot_bytes_per_channel % bytes_aligned_per_channel;
+
+	return runtime->dma_area + (frames_to_bytes(runtime, align) * hw_base_off) + block_off;
+}
 
 static int aml_i2s_prepare(struct snd_pcm_substream *substream)
 {
@@ -707,35 +716,18 @@ static int aml_i2s_copy_playback(struct snd_pcm_runtime *runtime, int channel,
         return -EFAULT;
     }
     if (access_ok(VERIFY_READ, buf, frames_to_bytes(runtime, count))) {
-        if (runtime->format == SNDRV_PCM_FORMAT_S16_LE) {
+      if(runtime->format == SNDRV_PCM_FORMAT_S16_LE)
+      {
+	int16_t * tfrom, *to, *left, *right;
+	tfrom = (int16_t *) ubuf;
 
-            int16_t * tfrom, *to, *left, *right;
-            tfrom = (int16_t*)ubuf;
-            to = (int16_t*)hwbuf;
+	for (j = 0; j < count; j++) {
+		to = (int16_t *) get_hw_buf_ptr(runtime, pos + j, align);
+		left = to;
+		right = to + align;
 
-            left = to;
-            right = to + 16;
-            if (pos % align) {
-                printk("audio data unligned: pos=%d, n=%d, align=%d\n", (int)pos, n, align);
-            }
-            if (set_android_gain_enable == 0) {
-                for (j = 0; j < n; j += 64) {
-                    for (i = 0; i < 16; i++) {
-                        *left++ = (*tfrom++) ;
-                        *right++ = (*tfrom++);
-                    }
-                    left += 16;
-                    right += 16;
-                }
-            } else {
-                for (j = 0; j < n; j += 64) {
-                    for (i = 0; i < 16; i++) {
-                        *left++ = (int16_t)(((*tfrom++) * android_left_gain) >> 8);
-                        *right++ = (int16_t)(((*tfrom++) * android_right_gain) >> 8);
-                    }
-                    left += 16;
-                    right += 16;
-                }
+		*left = (*tfrom++);
+		*right = (*tfrom++);
             }
         } else if (runtime->format == SNDRV_PCM_FORMAT_S24_LE && I2S_MODE == AIU_I2S_MODE_PCM24) {
             int32_t *tfrom, *to, *left, *right;
