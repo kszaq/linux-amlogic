@@ -1176,7 +1176,8 @@ int hdmitx_edid_parse(hdmitx_dev_t* hdmitx_device)
     Edid_DecodeStandardTiming(&hdmitx_device->hdmi_info, &EDID_buf[26], 8);
     Edid_ParseCEADetailedTimingDescriptors(&hdmitx_device->hdmi_info, 4, 0x36, &EDID_buf[0]);
 
-    BlockCount = EDID_buf[0x7E] ;
+    BlockCount = EDID_buf[0x7E];
+    hdmitx_device->RXCap.blk0_chksum = EDID_buf[0x7F];
 
     if( BlockCount == 0 ){
         hdmitx_device->hdmi_info.output_state = CABLE_PLUGIN_DVI_OUT;
@@ -1555,8 +1556,8 @@ int hdmitx_edid_dump(hdmitx_dev_t* hdmitx_device, char* buffer, int buffer_len)
     pos+=snprintf(buffer+pos, buffer_len-pos, "Receiver Brand Name: %s\r\n", pRXCap->ReceiverBrandName);
     pos+=snprintf(buffer+pos, buffer_len-pos, "Receiver Product Name: %s\r\n", pRXCap->ReceiverProductName);
 
-    pos+=snprintf(buffer+pos, buffer_len-pos, "EDID block number: 0x%x\r\n",hdmitx_device->EDID_buf[0x7e]);
-
+    pos+=snprintf(buffer+pos, buffer_len-pos, "EDID block number: 0x%x\n",hdmitx_device->EDID_buf[0x7e]);
+    pos+=snprintf(buffer+pos, buffer_len-pos, "blk0 chksum: 0x%02x\n", pRXCap->blk0_chksum);
     pos+=snprintf(buffer+pos, buffer_len-pos, "Source Physical Address[a.b.c.d]: %x.%x.%x.%x\r\n",
         hdmitx_device->hdmi_info.vsdb_phy_addr.a, hdmitx_device->hdmi_info.vsdb_phy_addr.b, hdmitx_device->hdmi_info.vsdb_phy_addr.c, hdmitx_device->hdmi_info.vsdb_phy_addr.d);
 
