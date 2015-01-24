@@ -262,7 +262,7 @@ bit[2]: enable bypass all when skip
 bit[1:0]: enable bypass post when skip
 */
 #else
-static int di_vscale_skip_enable = 4;
+static int di_vscale_skip_enable = 1;
 #endif
 
 
