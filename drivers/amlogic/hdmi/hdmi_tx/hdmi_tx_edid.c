@@ -1130,45 +1130,6 @@ static int hdmitx_edid_search_IEEEOUI(char *buf)
     return 0;
 }
 
-// check EDID strictly
-static int edid_check_valid(unsigned char *buf)
-{
-    unsigned int chksum = 0;
-    unsigned int i = 0;
-
-    // check block 0 first 8 bytes
-    if((buf[0] != 0) && (buf[7] != 0))
-        return 0;
-    for(i = 1; i < 7; i ++) {
-        if(buf[i] != 0xff)
-            return 0;
-    }
-
-    // check block 0 checksum
-    for(chksum = 0, i = 0; i < 0x80; i++) {
-        chksum += buf[i];
-    }
-    if((chksum & 0xff) != 0)
-        return 0;
-
-    // check Extension flag at block 0
-    if(buf[0x7e] == 0)
-        return 0;
-
-    // check block 1 extension tag
-    if(buf[0x80] != 0x2)
-        return 0;
-
-    // check block 1 checksum
-    for(chksum = 0, i = 0x80; i < 0x100; i++) {
-        chksum += buf[i];
-    }
-    if((chksum & 0xff) != 0)
-        return 0;
-
-    return 1;
-}
-
 static int check_dvi_hdmi_edid_valid(unsigned char *buf)
 {
     unsigned int chksum = 0;
