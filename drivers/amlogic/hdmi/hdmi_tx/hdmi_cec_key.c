@@ -79,16 +79,19 @@ void cec_send_event(cec_rx_message_t* pcec_message)
     brdcst      = (follower == 0x0f);
     msg_length  = pcec_message->msg_length;
     
-    for (i = 0; i < operand_num; i++ ) {
+    for (i = 0; i < operand_num; i++ )
+    {
        operands[i] = pcec_message->content.msg.operands[i]; 
        hdmi_print(INF, CEC  ":operands[%d]:%u\n", i, operands[i]);       
     }
-    if(cec_global_info.cec_flag.cec_key_flag) {
+    if (cec_global_info.cec_flag.cec_key_flag)
+    {
         input_event(cec_global_info.remote_cec_dev, EV_KEY, cec_key_map[operands[0]], 1);
         input_sync(cec_global_info.remote_cec_dev);
         hdmi_print(INF, CEC  ":key map:%d\n",cec_key_map[operands[0]]);
     }
-    else{
+    else
+    {
         input_event(cec_global_info.remote_cec_dev, EV_KEY, cec_key_map[operands[0]], 0);
         input_sync(cec_global_info.remote_cec_dev);
         hdmi_print(INF, CEC  ":key map:%d\n",cec_key_map[operands[0]]);
@@ -109,7 +112,8 @@ void cec_send_event_irq(void)
         hdmi_print(INF, CEC  ":operands_irq[%d]:0x%x\n", i, operands_irq[i]);       
     }
     
-    switch(cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].content.msg.operands[0]){
+    switch (cec_global_info.cec_rx_msg_buf.cec_rx_message[cec_global_info.cec_rx_msg_buf.rx_write_pos].content.msg.operands[0])
+    {
     case 0x33:
         //cec_system_audio_mode_request();
         //cec_set_system_audio_mode();
@@ -158,8 +162,10 @@ void cec_user_control_released(cec_rx_message_t* pcec_message)
  */
 void cec_standby(cec_rx_message_t* pcec_message)
 {
-    if(hdmitx_device->cec_func_config & (1 << CEC_FUNC_MSAK)) {
-        if(hdmitx_device->cec_func_config & (1 << ONE_TOUCH_STANDBY_MASK)) {
+    if (hdmitx_device->cec_func_config & (1 << CEC_FUNC_MSAK))
+    {
+        if (hdmitx_device->cec_func_config & (1 << ONE_TOUCH_STANDBY_MASK))
+        {
             hdmi_print(INF, CEC  ": System will be in standby mode\n");
             input_event(cec_global_info.remote_cec_dev, EV_KEY, KEY_POWER, 1);
             input_sync(cec_global_info.remote_cec_dev);

@@ -18,7 +18,7 @@
 #ifndef _TV_CEC_H_
 #define _TV_CEC_H_
 #include <linux/amlogic/hdmi_tx/hdmi_tx_module.h> 
-#if MESON_CPU_TYPE >= MESON_CPU_TYPE_MESON8
+#if (MESON_CPU_TYPE >= MESON_CPU_TYPE_MESON8) && (MESON_CPU_TYPE < MESON_CPU_TYPE_MESONG9TV)
 #include <mach/hdmi_parameter.h>
 #endif
 
@@ -43,6 +43,9 @@
 #define hdmitx_cec_dbg_print(fmt, args...)
 #endif
 #define HDMI_CEC_DEBUG()  printk("HDMI CEC DEBUG: %s [%d]\n", __FUNCTION__, __LINE__)
+
+//#define G9_CEC  //for G9 CEC debug.
+#define AO_CEC  //for switch between aocec and hdmi cec2.0
 
 extern unsigned int cec_tx_irq_flag;
 extern unsigned int cec_tx_irq_syn_flag;
@@ -159,6 +162,26 @@ typedef enum  {
     CEC_UNABLE_TO_DETERMINE,
 } cec_feature_abort_e;
 
+//#ifdef AO_CEC
+#if 1
+
+typedef enum {
+    JTAG_TMS = 1,
+    HDMI_CEC_AO,
+    HDMITX_CEC,
+    HDMIRX_CEC,
+    HDMI_GPIOAO_9,
+} cec_pinmux_set_e;
+
+typedef enum {
+    CEC_READ = 1,
+    CEC_WRITE,
+} cec_rw_e;
+
+void cec_hw_init(void);
+void cec_logic_addr_set(enum _cec_log_dev_addr_e phyaddr);
+
+#endif
 /*
  * CEC OPCODES
  */
@@ -250,7 +273,7 @@ typedef struct {
     unsigned char msg[MAX_MSG];
     unsigned char length;
     struct list_head list;
-} cec_tx_message_list_t;
+} cec_usr_message_list_t;
 
 /* cec global struct */
 
@@ -503,18 +526,25 @@ int cec_ll_tx_polling(const unsigned char *msg, unsigned char len);
 
 int cec_ll_tx(const unsigned char *msg, unsigned char len);
 int cec_ll_rx( unsigned char *msg, unsigned char *len);
+int cec_rx_irq_handle(unsigned char *msg, unsigned char *len);
+unsigned int cec_intr_stat(void);
 
 void cec_test_function(unsigned char* arg, unsigned char arg_cnt);
 void cec_node_init(hdmitx_dev_t* hdmitx_device);
 void cec_node_uninit(hdmitx_dev_t* hdmitx_device);
-
+void dumpaocecreg(void);
+void raocec(unsigned int addr);
+void waocec(unsigned int addr, unsigned int value);
+void cec_rx_buf_check(void);
 void cec_hw_reset(void);
 
+unsigned int dispatch_buffer_parse(const char *buf, const char *string,  char *param, size_t count);
 void register_cec_rx_msg(unsigned char *msg, unsigned char len );
 void cec_handle_message(cec_rx_message_t* pcec_message);
-void unregister_cec_tx_msg(cec_tx_message_list_t* cec_usr_message_list);
+void unregister_cec_tx_msg(cec_usr_message_list_t* cec_tx_message_list);
+void unregister_cec_rx_msg(cec_usr_message_list_t* cec_rx_message_list);
 void register_cec_tx_msg(unsigned char *msg, unsigned char len);
-void cec_usr_cmd_post_process(void);
+void cec_tx_cmd_post_process(void);
 void cec_set_pending(tv_cec_pending_e on_off);
 void cec_polling_online_dev(int log_addr, int *bool);
 unsigned short cec_log_addr_to_dev_type(unsigned char log_addr);
@@ -583,6 +613,8 @@ void cec_set_standby(void);
 void cec_isr_post_process(void);
 void cec_clear_buf(unsigned int flag);
 
+void cec_tx_irq_handle(void);
+
 #if MESON_CPU_TYPE >= MESON_CPU_TYPE_MESON8
 void cec_arbit_bit_time_set(unsigned bit_set, unsigned time_set, unsigned flag);
 void tx_irq_handle(void);
@@ -594,6 +626,7 @@ void ao_cec_init(void);
 #ifdef CONFIG_ARCH_MESON6
 void cec_gpi_init(void);
 #endif
+
 
 unsigned char check_cec_msg_valid(const cec_rx_message_t* pcec_message);
 void cec_send_event(cec_rx_message_t* pcec_message);
