@@ -849,7 +849,6 @@ void cec_report_physical_address_smp(void)
     msg[4] = cec_global_info.cec_node_info[index].dev_type;
 
     cec_ll_tx(msg, 5);
-        
 }
 
 void cec_imageview_on_smp(void)
@@ -877,7 +876,6 @@ void cec_get_menu_language_smp(void)
     msg[1] = CEC_OC_GET_MENU_LANGUAGE;
     
     cec_ll_tx(msg, 2);
-    
 }
 
 void cec_menu_status(cec_rx_message_t* pcec_message)
@@ -2028,17 +2026,14 @@ void cec_usrcmd_set_dispatch(const char * buf, size_t count)
     case POLLING_ONLINE_DEV:    //19 LA
         cec_polling_online_dev(param[1], &bool);
         break;
-
     case CEC_OC_MENU_STATUS:
         cec_menu_status_smp(DEVICE_MENU_INACTIVE);
         break;
     case CEC_OC_ABORT_MESSAGE:
-
         msg[0] = 0x40;
         msg[1] = CEC_OC_FEATURE_ABORT;
         msg[2] = 0;
         msg[3] = CEC_UNRECONIZED_OPCODE;
-
         cec_ll_tx(msg, 4);
         break;
     case PING_TV:    //0x1a LA : For TV CEC detected.

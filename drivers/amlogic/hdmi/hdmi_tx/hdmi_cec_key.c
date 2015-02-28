@@ -162,9 +162,10 @@ void cec_user_control_released(cec_rx_message_t* pcec_message)
  */
 void cec_standby(cec_rx_message_t* pcec_message)
 {
-    if (hdmitx_device->cec_func_config & (1 << CEC_FUNC_MSAK))
-    {
-        if (hdmitx_device->cec_func_config & (1 << ONE_TOUCH_STANDBY_MASK))
+    unsigned int mask;
+
+    mask = (1 << CEC_FUNC_MSAK) | (1 << ONE_TOUCH_STANDBY_MASK);
+    if (hdmitx_device->cec_func_config & mask)
         {
             hdmi_print(INF, CEC  ": System will be in standby mode\n");
             input_event(cec_global_info.remote_cec_dev, EV_KEY, KEY_POWER, 1);
@@ -174,7 +175,6 @@ void cec_standby(cec_rx_message_t* pcec_message)
             cec_disable_irq();
         }
     }
-}
 
 void cec_key_init(void)
 {

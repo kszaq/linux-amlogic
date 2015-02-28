@@ -66,7 +66,7 @@ void cec_hw_reset(void)
     hdmi_wr_reg(OTHER_BASE_ADDR+HDMI_OTHER_CTRL0, 0xc); //[3]cec_creg_sw_rst [2]cec_sys_sw_rst
     hdmi_wr_reg(CEC0_BASE_ADDR+CEC_TX_CLEAR_BUF, 0x1);
     hdmi_wr_reg(CEC0_BASE_ADDR+CEC_RX_CLEAR_BUF, 0x1);
-    
+
     //mdelay(10);
     {//Delay some time
         int i = 10;
@@ -108,7 +108,7 @@ int cec_ll_rx( unsigned char *msg, unsigned char *len)
         hdmi_wr_reg(CEC0_BASE_ADDR + CEC_RX_MSG_CMD,  RX_NO_OP);
         return -1;
     }
-    
+
     rx_msg_length = hdmi_rd_reg(CEC0_BASE_ADDR + CEC_RX_MSG_LENGTH) + 1;
 
     hdmi_wr_reg(CEC0_BASE_ADDR + CEC_RX_MSG_CMD,  RX_ACK_CURRENT);
@@ -200,7 +200,7 @@ void cec_polling_online_dev(int log_addr, int *bool)
     {
         memset(&(cec_global_info.cec_node_info[log_addr]), 0, sizeof(cec_node_info_t));
         cec_global_info.cec_node_info[log_addr].dev_type = cec_log_addr_to_dev_type(log_addr);
-    	*bool = 1;
+        *bool = 1;
     }
     if (*bool == 0)
     {
@@ -250,15 +250,15 @@ static int cec_ll_tx_once(const unsigned char *msg, unsigned char len)
     unsigned int ret = 0xf;
     unsigned int n;
     int pos;
-    
+
     cec_tx_start = 1;
     cec_rx_start = 1;
     get_bus_free();
     cec_rx_start = 0;
-    
+
     for (i = 0; i < len; i++)
     {
-    	hdmi_wr_reg(CEC0_BASE_ADDR+CEC_TX_MSG_0_HEADER + i, msg[i]);
+        hdmi_wr_reg(CEC0_BASE_ADDR+CEC_TX_MSG_0_HEADER + i, msg[i]);
     }
     hdmi_wr_reg(CEC0_BASE_ADDR+CEC_TX_MSG_LENGTH, len-1);
 
@@ -268,7 +268,7 @@ static int cec_ll_tx_once(const unsigned char *msg, unsigned char len)
     msleep(len * 24 + 5);
 
     ret = hdmi_rd_reg(CEC0_BASE_ADDR+CEC_TX_MSG_STATUS);
-    
+
     printk("cec TX status: rx: 0x%x; tx: 0x%x\n", hdmi_rd_reg(CEC0_BASE_ADDR+CEC_RX_MSG_STATUS), hdmi_rd_reg(CEC0_BASE_ADDR+CEC_TX_MSG_STATUS));
     if (ret == TX_DONE)
         ret = 1;
@@ -277,7 +277,7 @@ static int cec_ll_tx_once(const unsigned char *msg, unsigned char len)
 
     hdmi_wr_reg(CEC0_BASE_ADDR+CEC_TX_MSG_CMD, TX_NO_OP);
     cec_tx_start = 0;
-    
+
     if (cec_msg_dbg_en == 1)
     {
         pos = 0;
@@ -296,12 +296,11 @@ static int cec_ll_tx_once(const unsigned char *msg, unsigned char len)
 // Return value: 0: fail    1: success
 int cec_ll_tx(const unsigned char *msg, unsigned char len)
 {
-    
     int ret = 0;
     int i;
 
     mutex_lock(&cec_mutex);
-    
+
     repeat = 0;
     memset(&cec_msg_bak, 0, sizeof(cec_msg_bak));
     memset(ack_check_point, 0, sizeof(ack_check_point));
@@ -315,7 +314,7 @@ int cec_ll_tx(const unsigned char *msg, unsigned char len)
     }
 
     // if transmit message error, try repeat(4) times
-    do {     
+    do {
         ret = cec_ll_tx_once(msg, len);
         cec_repeat_flag = ret;
         repeat ++;
@@ -377,13 +376,13 @@ static void cec_gpi_receive_bits(void)
     val = get_value(frame_time_log[frame_time_idx], frame_time_log[frame_time_idx - 1]);
     if (3 == val)
         frame_time_idx = 1;
-    
+
     if ((!cec_rx_start) && (val == 2) && (frame_time_idx > 20))
     {
         hdmi_wr_reg(CEC0_BASE_ADDR+CEC_TX_MSG_CMD, TX_ABORT); // stop cec tx for hw retry.
         hdmi_wr_reg(CEC0_BASE_ADDR+CEC_TX_MSG_CMD, TX_NO_OP);
     }
-    
+
     if ((!cec_rx_start) && need_check_ack(frame_time_idx))
     {
         // if val == 1, and DES != 0xf
@@ -404,7 +403,7 @@ void cec_gpi_init(void)
 {
     extern hdmitx_dev_t * get_hdmitx_device(void);
     hdmitx_device = get_hdmitx_device();
-    
+
     if ((hdmitx_device->cec_init_ready == 0) || (hdmitx_device->hpd_state == 0))
     {   // If no connect, return directly
         aml_set_reg32_bits(P_MEDIA_CPU_IRQ_IN2_INTR_STAT_CLR, 1, 0, 1); // Write 1 to clear irq.
