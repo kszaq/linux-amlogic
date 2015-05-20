@@ -373,28 +373,12 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
-		   -fno-delete-null-pointer-checks \
-		   -Werror
+		   -fno-delete-null-pointer-checks
 KBUILD_CFLAGS   += -Werror=enum-compare \
 		   -Werror=comment \
 		   -Werror=implicit-int \
 		   -Werror=missing-braces \
-		   -Werror=unused-value \
-		   -Werror=maybe-uninitialized \
-		   -Werror=unused-variable \
-		   -Werror=format \
-		   -Werror=unused-function \
-		   -Werror=switch \
-		   -Werror=strict-prototypes \
-		   -Werror=declaration-after-statement \
-		   -Werror=uninitialized \
-		   -Werror=unused-label \
-		   -Werror=undef \
-		   -Werror=unused-result \
-		   -Werror=return-type \
-		   -Werror=parentheses \
-		   -Werror=int-to-pointer-cast \
-		   -Wno-error=cpp
+		   -Werror=unused-value
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
 KBUILD_AFLAGS   := -D__ASSEMBLY__
@@ -636,6 +620,8 @@ ifndef CONFIG_FUNCTION_TRACER
 KBUILD_CFLAGS	+= -fomit-frame-pointer
 endif
 endif
+
+KBUILD_CFLAGS   += $(call cc-option, -fno-var-tracking-assignments)
 
 ifdef CONFIG_DEBUG_INFO
 KBUILD_CFLAGS	+= -g
