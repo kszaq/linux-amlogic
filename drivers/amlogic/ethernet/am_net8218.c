@@ -907,8 +907,8 @@ void read_mac_from_nand(struct net_device *ndev)
 	u8 mac[ETH_ALEN];
 	char *endp;
 	int j;
+	extenal_api_key_set_version("auto3");
 	ret = get_aml_key_kernel("mac", print_buff, 0);
-	extenal_api_key_set_version("nand3");
 	printk("ret = %d\nprint_buff=%s\n", ret, print_buff);
 	if (ret >= 0) {
 		strcpy(ndev->dev_addr, print_buff);
