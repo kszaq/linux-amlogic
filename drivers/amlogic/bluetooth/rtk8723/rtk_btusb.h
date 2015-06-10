@@ -36,7 +36,7 @@
 #include <linux/suspend.h>
 
 
-#define CONFIG_BLUEDROID        1 //bleuz 0 ;  bluedroid 1
+#define CONFIG_BLUEDROID        0 //bleuz 0 ;  bluedroid 1
 
 #if CONFIG_BLUEDROID //for 4.2
 #else //for blueZ
